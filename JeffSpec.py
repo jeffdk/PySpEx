@@ -21,20 +21,19 @@ pi = arccos(0.)*2.
 
 ERROR_TOL=1.0e-10
 
+######
+#  Time steppers:  given a function rhs which computes
+#                  the Right Hand Side of an evolution equation
+#                  advance the fields in u by a step of deltaT
+######
 
 def forwardEulerStep(rhs,u,deltaT):
-    
-
-
 
     dts = rhs(u)
     u_new = u +  deltaT * dts
-
     return u_new
 
 def rungeKutta4Step(rhs,u,deltaT):
-    
-    
 
     k1 = deltaT * rhs(u)
     k2 = deltaT * rhs( u + k1/2.0 )
@@ -42,8 +41,8 @@ def rungeKutta4Step(rhs,u,deltaT):
     k4 = deltaT * rhs( u + k3 )
 
     u_new = u + k1/6.0 + k2/3.0 + k3 /3.0 + k4/6.0
-
     return u_new
+
 
 def filterTopk(psi, k):
     N=len(psi)
