@@ -5,3 +5,5 @@ PySEx
 
 Methods and code for testing the evolution of PDEs using spectrally
 based methods.
+
+Requires: numpy, scipy and matplotlib
