@@ -22,83 +22,6 @@ pi = arccos(0.)*2.
 ERROR_TOL=1.0e-10
 
 
-#Heaviside lambda 'triangle' function
-def HeavisideLambda(x):
-    x=x 
-    value = 0.0
-    if x < 0.0 and x > - 1.0:
-        value = x + 1.0
-    elif x == 0.0:
-        value = 1.0
-    elif(x > 0.0 and x < 1.0):
-        value = 1.0 - x
-    return value
-
-#Frompyfunc allows a function to operate array wise!
-H=frompyfunc(HeavisideLambda,1,1)
-
-#HeavisideFunction offset by off
-def Hoffset(x,off):
-    return H(x-off)
-
-#2.5 is to make it fit in the interval better
-VectorSin=frompyfunc(sin,1,1)
-def SinOffset (x, off):
-    return VectorSin(2.5*(x-off))
-
-
-#Extended Heaviside lambda 'triangle' function
-# Continuous instead of zero outside of -1,1
-def ExtendedHeavisideLambda(x):
-    x=x 
-    value = 0.0
-    if x < 0.0:
-        value = x + 1.0
-    elif x == 0.0:
-        value = 1.0
-    elif(x > 0.0):
-        value = 1.0 - x
-    return value
-
-#Frompyfunc allows a function to operate array wise!
-EH=frompyfunc(ExtendedHeavisideLambda,1,1)
-
-def jump(x):
-    value=0.0
-    if x < 0.0:
-        value =0.0
-    elif x > 0.0:
-        value = 1.0
-    elif x == 1.0:
-        value = 1.0
-    return value
-jmp=frompyfunc(jump,1,1)
-def jmpoffset(x,off):
-    return jmp(x-off)
-
-#HeavisideFunction offset by off
-def EHoffset(x,off):
-    return EH(x-off)
-
-##A smooth function on -1,1
-def smoothfuncA(x):
-    return tanh(x**2)*sin((pi*2.*x/3.)**( 13/ 9 ) )#sin(pi*x*x*2.)
-smoothfunc=frompyfunc(smoothfuncA,1,1)
-
-def SmoothFuncOffset(x,xoff):
-    return smoothfunc(x-xoff)
-
-
-
-##A Constant function on -1,1
-def constfuncA(x):
-    return .5
-constfunc=frompyfunc(constfuncA,1,1)
-
-##Arraywise abs
-aabs=frompyfunc(abs,1,1)
-
-
 def forwardEulerStep(rhs,u,deltaT):
     
 
@@ -384,7 +307,7 @@ from scipy import optimize as opt
 def LInfinityNorm(func, coeffs):
     N = len(coeffs) -1 
     approx= lambda x: NthPartialSum(x,N,coeffs)
-    funcToMinimize = lambda x: -aabs(approx(x)-func(x))
+    funcToMinimize = lambda x: -absolute(approx(x)-func(x))
     
     ftm=frompyfunc(funcToMinimize,1,1)
 

@@ -13,11 +13,13 @@ from matplotlib import pyplot as mpl
 
 from JeffSpec import *
 
+from OneDTestFunctions import *
+
 colorList=['k','r','g','b']
 lineStyleList=['--','..',':','-.']
 
-functionUsed=EHoffset
-#functionUsed = jmpoffset
+functionUsed=ExtendedHeavisideLambdaOffset
+#functionUsed = JumpOffset
 #functionUsed= SmoothFuncOffset
 #functionUsed =  SinOffset
 normUsed=LInfinityNorm
