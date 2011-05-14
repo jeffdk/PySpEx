@@ -96,7 +96,7 @@ Phi0 = (u_plus - u_minus )/2.0
   #        cheb_xis, dts[0], cheb_xis, dts[1],  cheb_xis, dts[2] )
 #mpl.show()
 
-deltaT = 1.e-2
+deltaT = 1.e-3
 
 fout =  open('psi.ygraph', 'w')
 
