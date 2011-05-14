@@ -77,13 +77,13 @@ exmax=eos.points[len(eos.points) -1]
 eps = log(eos.points[1]) - log(eos.points[0])
 
 print "eps: ", eps
-xs =xtointerval(log(eos.points),log(exmin)-eps,log(exmax)+eps)
+xs =xtointerval(log(eos.points),log(exmin),log(exmax))
 
 
  
 print trapezoidIntegrateFromPoints(xs,eos.data + 1.e-2)
 
-N = 30
+N = 6
 fks=[]
 for i in range(N):
     chebi = []
@@ -103,20 +103,41 @@ for i in range(N):
     
   
         
-print fks
-      
-ys=[]  
-for x in xs:
-    ys.append(NthPartialSum(x,N-1, fks))
-
+#print fks
+  
 
 def interpFunc(x):
-    
+    func = log(eos.data + 1.e-2) 
+    index =index_from_value(x,xs )
 
+    a = xs[index -1]
+    b = xs[index]
+    fa = func[index-1]
+    fb = func[index]
+    value = fa + (fb - fa)/(b-a) * (x -a)
 
-mpl.plot(xs, log(eos.data + 1.e-2) ,xs, ys)
+    print x, xs[index]
+    return value
+
+print interpFunc(.5)
+
+pseudofks= calc_fks(interpFunc,N-1)
+ 
+
+print pseudofks
+   
+ys=[]  
+ypseudo=[]
+for x in xs:
+    ys.append(NthPartialSum(x,N-1, fks))
+    ypseudo.append(NthPartialSum(x,N-1, pseudofks))
+
+mpl.plot(xs, log(eos.data + 1.e-2) ,xs,ypseudo)
 
 #mpl.show()
 #mpl.semilogx(eos.points,eos.data)
 
+mpl.show()
+
+mpl.semilogy(range(N),absolute(pseudofks))
 mpl.show()
