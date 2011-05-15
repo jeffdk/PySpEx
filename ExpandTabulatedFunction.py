@@ -16,10 +16,10 @@ from JeffSpec import *
 
 def trapezoidIntegrateFromPoints(xs, ys):
 
-    N = len (xs)
+    length = len (xs)
     
     sum = 0
-    for i in range(N-1):
+    for i in range(length-1):
         sum = sum +  trapezoidal_piece(ys[i],ys[i+1],xs[i],xs[i+1])
                                        
 
@@ -32,7 +32,7 @@ def xtointerval(x,xmin,xmax):
 
 
 def trapezoidal_piece(fa,fb, a, b):
-    return (b-a) * ( fa/2 + fb/2  ) 
+    return (b-a) * ( fa/2.0 + fb/2.0  ) 
  
 
 def simpson(f, a ,b, n):
@@ -77,15 +77,19 @@ exmax=eos.points[len(eos.points) -1]
 eps = log(eos.points[1]) - log(eos.points[0])
 
 print "eps: ", eps
-xs =xtointerval(log(eos.points),log(exmin),log(exmax))
-
+xs =xtointerval(log(eos.points),log(exmin)-eps,log(exmax)+eps)
+realxs=xtointerval(log(eos.points),log(exmin),log(exmax))
 
  
 print trapezoidIntegrateFromPoints(xs,eos.data + 1.e-2)
 
-N = 6
+N = 7
 fks=[]
 for i in range(N):
+    ci = 1.0
+#    if  (i == N-1 ):
+#        ci = 2.0
+    
     chebi = []
     for j in range(len(xs)):
         chebi.append(
@@ -96,27 +100,62 @@ for i in range(N):
 
     fks.append(
         trapezoidIntegrateFromPoints(xs,
-                                     log(eos.data + 1.e-2) 
-                                     * cheb(i,xs) * (2.0 - i % (N-1))/pi
+                                     log(eos.data + 1.e-2) / (1.0-xs*xs)**(1./2.)
+                                     * cheb(i,xs) * (ci)/pi
                                      )
         )
-    
-  
-        
-#print fks
-  
+   
+
+################### TEST INTEGRATOR #######################
+#
+#  tests integration of function f(x)=x
+#
+
+
+
+testxs = arange(0.0, 1.0, 1e-2)
+
+testintegrand = []
+
+for i in range(len(testxs)):
+    portion = testxs[0:i]
+    testintegrand.append (
+        trapezoidIntegrateFromPoints(portion, portion)
+        )
+
+#mpl.plot(testxs,testintegrand-1./2.*testxs*testxs)
+#mpl.show()
+# done with test integration
+#######################
+
+
+##########################
+#Test chebbies
+
+
+
+for i in range(N):
+    mpl.plot(xs,cheb(i,xs))
+
+mpl.show()
+
+
+
+#
+#############################
+
 
 def interpFunc(x):
     func = log(eos.data + 1.e-2) 
-    index =index_from_value(x,xs )
+    index =index_from_value(x,realxs )
 
-    a = xs[index -1]
-    b = xs[index]
+    a = realxs[index -1]
+    b = realxs[index]
     fa = func[index-1]
     fb = func[index]
     value = fa + (fb - fa)/(b-a) * (x -a)
 
-    print x, xs[index]
+    #print x, xs[index]
     return value
 
 print interpFunc(.5)
@@ -125,6 +164,7 @@ pseudofks= calc_fks(interpFunc,N-1)
  
 
 print pseudofks
+print fks
    
 ys=[]  
 ypseudo=[]
@@ -132,12 +172,12 @@ for x in xs:
     ys.append(NthPartialSum(x,N-1, fks))
     ypseudo.append(NthPartialSum(x,N-1, pseudofks))
 
-mpl.plot(xs, log(eos.data + 1.e-2) ,xs,ypseudo)
+mpl.plot(xs, log(eos.data + 1.e-2) ,xs,ypseudo, xs,ys)
 
 #mpl.show()
 #mpl.semilogx(eos.points,eos.data)
 
 mpl.show()
 
-mpl.semilogy(range(N),absolute(pseudofks))
+mpl.semilogy(range(N),absolute(pseudofks),range(N), absolute(fks))
 mpl.show()
