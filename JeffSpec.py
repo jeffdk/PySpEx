@@ -75,7 +75,7 @@ def waveEqRhs1D(ui):
     
     cheb_xis =[]
     for i in range(N):
-        cheb_xis.append(-cos(pi*i/N))
+        cheb_xis.append(-cos(pi*i/(N-1.0)))
     cheb_xis = array(cheb_xis)
 
     dtu_plus  = dts[1]+dts[2]
@@ -114,8 +114,8 @@ def waveEqRhs1DNoBrdy(ui):
    # print N, len(Psi), len(Pi), len(Phi)
 
     dtPsi =  Pi*-1.0
-    dtPi  =  matrixTransform(deriv_matrix(N),Phi)
-    dtPhi =  matrixTransform(deriv_matrix(N),Pi)
+    dtPi  =  matrixTransform(deriv_matrix(N),Phi) *-1.
+    dtPhi =  matrixTransform(deriv_matrix(N),Pi) *-1.
     
    # print len(
    # print N, len(dtPsi), len(dtPi), len(dtPhi), "THIS LINE"
@@ -126,24 +126,24 @@ def waveEqRhs1DNoBrdy(ui):
 # returns N+1xN+1 dft matrix, transforms from collocation to 
 # spectral values
 def dft_matrix(N):
-    N=N-1 
+    
     result = []
-    for k  in range(N+1):
+    for k  in range(N):
         #weird coeffs see eq 3.9
         ck = 1.0
-        if k == 0 or k == N:
+        if k == 0 or k == (N-1):
             ck = 2.0
         
         result.append([])
         #strictly fk is  fk* N ck/2 in eq 3.10
-        for n in range(N+1):
+        for n in range(N):
             cn= 1.0
-            if n == 0 or n == N:
+            if n == 0 or n == (N-1):
                 cn = 2.0
             #nth colocation point given by
-            xn=-cos(pi*n/N)
+            xn=-cos(pi*n/(N-1))
             Tk=cheb(k,xn)
-            result[k].append ( 1.0/cn *Tk * 2.0/(N*ck))
+            result[k].append ( 1.0/cn *Tk * 2.0/((N-1)*ck))
             #if k == 35:
             #print "k: ", k,  "\tn: ", n,  "\txn: ", xn,          "\t\t\tTk(xn): ", Tk(xn), "\tfk: ", fk,"\tfunc(xn): ", func(xn)
         #result[k] = result[k] 
@@ -156,11 +156,11 @@ def dft_matrix(N):
 def matrixTransform(dftMatrix,points):
     result=[]
     #dimensions good continue
-#    print "matrix xform"
-#    print len(dftMatrix) 
-#    print len(dftMatrix[0])
-#    print len(points)
-#    print "-----"
+ #   print "matrix xform"
+ #   print len(dftMatrix) 
+ #   print len(dftMatrix[0])
+ #   print len(points)
+ #   print "-----"
     if (len(dftMatrix) == len(points)) and  (len(dftMatrix)==  len(dftMatrix[0])):
         N=len(points)
         result = arange(N)
@@ -182,35 +182,39 @@ def matrixTransform(dftMatrix,points):
     return result
 
 def deriv_matrix(N):
-    N=N-1 #hack for off index
+   
     result = []
-    for i in range(N+1):
+    for j in range(N):
         result.append([])
-        xi = -cos(pi*i/N)
-        ci = 1
-        if ( i == 0) or ( i == N ):
-            ci =2
-        for j in range(N+1):
-            cj = 1
-            if ( j == 0) or ( j == N ):
-                cj =2
-            xj = -cos(pi*j/N)
+        xj = -cos(pi*j/(N-1))
+        cj = 1.
+        if ( j == 0) or ( j == (N-1) ):
+            cj =2.
+        for i in range(N):
+            ci = 1.
+            if ( i == 0) or ( i == (N-1) ):
+                ci =2.
+            xi = -cos(pi*i/(N-1))
             guy = 0.0
             if (i == j) and (j==0):
                 #print "case i = j = 0:: i is ", i, " j is ", j
-                guy = 1./6. * (1. + 2. * ( N)**2)            
-            elif (i == j) and (j == N ):
-                guy = -1./6. * (1. + 2. * ( N)**2)
+                guy = - 1./6. * (1. + 2. * ( N+1)**2)            
+            elif (i == j) and (j == N -1 ):
+                guy = 1./6. * (1. + 2. * ( N+1)**2)
                 #print "case i = j = N:: i is ", i, " j is ", j
             elif i == j:
-                #print "case i = j !=0,N:: i is ", i, " j is ", j
-                guy = 0.5*xj /(1.-xj**2)
+                print "case i = j !=0,N:: i is ", i, " j is ", j
+                guy = -0.5*xj /(1.-xj**2)
+                print guy
             else:
-                #print "case i !=      :: i is ", i, " j is ", j
-                guy = (-1)**(1+i+j)*ci / (cj * ( xi-xj))
+                print "case i != j     :: i is ", i, " j is ", j
+                guy = (-1.)**(1.+i+j)*ci / (cj * ( xi-xj))
+                print guy
             if (i>N):
                 guy = 0
-            result[i].append(guy)
+                print "SHOULD NOT GET HERE"
+                exit()
+            result[j].append(guy)
 
     return array(result)
 ########!!!!!!!!! METHODS !!!!!!!!!!!#########
@@ -250,7 +254,7 @@ def calc_fks(func, order):
 #note n should match N
 def NthPartialSum(x,N,coefs):
     val=0.0
-    for i in range(N+1):
+    for i in range(N):
         Ti=cheb(i,x)
         val = val + coefs[i]*Ti
     return val

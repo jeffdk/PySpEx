@@ -19,7 +19,7 @@ lineStyleList=['--','..',':','-.']
 
 functionUsed=ExtendedHeavisideLambdaOffset
 #functionUsed = JumpOffset
-#functionUsed= SmoothFuncOffset
+functionUsed= SmoothFuncOffset
 #functionUsed =  SinOffset
 normUsed=LInfinityNorm
 normLabel="Infin"
@@ -47,9 +47,9 @@ offsets=[offsetStart,offsetFinish]
 
 normVsOffsetList=[]
 
-N=30
-print dft_matrix(N)
-print len(dft_matrix(N))
+N=16
+#print dft_matrix(N)
+#print len(dft_matrix(N))
 
 Psi0=[]
 Pi0 =[]
@@ -63,9 +63,10 @@ cheb_xis= []
 for i in range(N+1):
     x = -cos(pi*i/N)
     cheb_xis.append(-cos(pi*i/N))
-    points.append(functionUsed(-cos(pi*i/N) , 0 ))
+    points.append(functionUsed(-cos(pi*i/N) , 0.45 ))
     Psi0.append(0.0)
-    Pi0.append( 10.*x*(1-x*x)*exp( -26.0 * (cos(pi*i/N)**2 ) ) )
+    # Pi0.append( 10.*x*(1-x*x)*exp( -26.0 * (cos(pi*i/N)**2 ) ) )
+    Pi0.append( exp( -36.0 * (x*x ) ) )
     Phi0.append(0.0)
 
 
@@ -73,7 +74,9 @@ Psi0 = array (Psi0)
 Pi0  = array (Pi0)
 Phi0 = array (Phi0)
 cheb_xis = array(cheb_xis)
+minSpacing = cheb_xis[1] - cheb_xis[0]
 
+print 'Minimum spacing between points: ', minSpacing
 #enforce boundry cond
 u_plus  = Pi0 + Phi0
 u_minus = Pi0 - Phi0
@@ -96,17 +99,18 @@ Phi0 = (u_plus - u_minus )/2.0
   #        cheb_xis, dts[0], cheb_xis, dts[1],  cheb_xis, dts[2] )
 #mpl.show()
 
-deltaT = 1.e-3
+deltaT = minSpacing
 
 fout =  open('psi.ygraph', 'w')
 
 u_0 = array([Psi0, Pi0, Phi0 ])
 
 u = forwardEulerStep(waveEqRhs1D, u_0,deltaT)
+u = rungeKutta4Step(waveEqRhs1D, u_0,deltaT)
 
-outputEvery=1.e-2
+outputEvery=deltaT 
 
-for t in arange(0,1.50,deltaT):
+for t in arange(0,5.00,deltaT):
     
     if ( t /outputEvery) == int(t/outputEvery):
 
@@ -118,7 +122,7 @@ for t in arange(0,1.50,deltaT):
         fout. write('\n')
 
     #u_new = forwardEulerStep(waveEqRhs1D,u,deltaT)
-    u_new = rungeKutta4Step(waveEqRhs1D,u,deltaT)
+    #u_new = rungeKutta4Step(waveEqRhs1D,u,deltaT)
     #u_new[0] = filterTopk(u_new[0],3)
     #u_new[1] = filterTopk(u_new[1],3)
     #u_new[2] = filterTopk(u_new[2],3)
@@ -130,12 +134,12 @@ for t in arange(0,1.50,deltaT):
 
     #u_new[1] = (u_plus + u_minus )/2.0
     #u_new[2]= (u_plus - u_minus )/2.0
-    u = u_new
+    #u = u_new
 
 fout.close()
 
-mpl.plot(  cheb_xis,Psi0,  cheb_xis, u[1], );
-mpl.show()
+#mpl.plot(  cheb_xis,Psi0,  cheb_xis, u[1], );
+#mpl.show()
 #  cheb_xis, Pi0,    cheb_xis,  Phi0,
 #          cheb_xis, dts[0], cheb_xis, dts[1],  cheb_xis, dts[2] )
 
@@ -152,18 +156,50 @@ mpl.show()
 #print
 #print  matrixTransform(deriv_matrix(N),points)
 
-#xs = arange(-1.,1.,.01)
-#ys=[]
-#dys=[]
-#fd=[0,0]
-#count = 0
-#for x in xs:
-#    ys.append(NthPartialSum(x,N, matrixTransform(dft_matrix(N),points)))
-#    dys.append(NthPartialSum(x,N, matrixTransform(dft_matrix(N),matrixTransform(deriv_matrix(N),points))))
-#    if count > 1:
-#        fd.append((ys[count] - ys[count-2])/.02)
-#    count +=1
-#mpl.plot(xs,ys,xs,dys,xs,fd)
-#mpl.show()
+xs = arange(-1.,1.0,.01)
+ys=[]
+dys=[]
+fd=[0,0]
+count = 0
+derivs = matrixTransform(deriv_matrix(N+1),points)
+
+
+
+print matrixTransform(dft_matrix(N+1),points)
+print array(calc_fks(lambda x: functionUsed(x,0) , N))
+print
+print
+print deriv_matrix(N+1)
+print 
+print 
+
+fd_derivs=[]
+
+for x in xs:
+    ys.append(NthPartialSum(x,N+1, matrixTransform(dft_matrix(N+1),points)))
+    dys.append(NthPartialSum(x,N+1, matrixTransform(dft_matrix(N+1),derivs)))
+    if count > 1:
+        fd.append((ys[count] - ys[count-2])/.02)
+    count +=1
+
+for x in cheb_xis:
+    ind = index_from_value(x,xs)
+    fd_derivs.append(fd[ind])
+    
+print array(fd_derivs)
+print derivs
+print
+print
+print
+print  matrixTransform(dft_matrix(N+1),array(fd_derivs))
+print   matrixTransform(dft_matrix(N+1),array(derivs))
+
+
+
+
+
+mpl.plot(xs,ys,xs,dys,xs,fd,cheb_xis,derivs,cheb_xis,fd_derivs)
+mpl.legend(["func","spectral deriv","fd deriv"])
+mpl.show()
 #exit()
 

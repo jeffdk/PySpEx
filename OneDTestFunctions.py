@@ -78,7 +78,7 @@ def SmoothFuncScalar(x):
 SmoothFunc=frompyfunc(SmoothFuncScalar,1,1)
 
 def SmoothFuncOffset(x,xoff):
-    return smoothfunc(x-xoff)
+    return SmoothFunc(x-xoff)
 
 
 ##A Constant function on -1,1
