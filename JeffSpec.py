@@ -197,21 +197,21 @@ def deriv_matrix(N):
             xi = -cos(pi*i/(N-1))
             guy = 0.0
             if (i == j) and (j==0):
-                print "case i = j = 0:: i is ", i, " j is ", j
-                guy =  1./6. * (1. + 2. * ( N+1)**2)   
-                print guy
+                #print "case i = j = 0:: i is ", i, " j is ", j
+                guy =  -1./6. * (1. + 2. * ( N-1)**2)   
+                #print guy
             elif (i == j) and (j == N -1 ):
-                guy = -1./6. * (1. + 2. * ( N+1)**2)
-                print "case i = j = N:: i is ", i, " j is ", j
-                print guy
+                guy = 1./6. * (1. + 2. * ( N-1)**2)
+                #print "case i = j = N:: i is ", i, " j is ", j
+                #print guy
             elif i == j:
-                print "case i = j !=0,N:: i is ", i, " j is ", j
+               # print "case i = j !=0,N:: i is ", i, " j is ", j
                 guy = -0.5*xi /(1.-xi**2)
-                print guy
+                #print guy
             else:
-                print "case i != j     :: i is ", i, " j is ", j
+                #print "case i != j     :: i is ", i, " j is ", j
                 guy = (-1.)**(i+j)*cj / (ci * ( xj-xi))
-                print guy
+                #print guy
                 #canuto p455
                 #guy = -0.5 * cj/ci * (-1)**(j+i) / (sin( (j+i)*pi/(2.*(N-1) )) * sin( (j-i)*pi/(2.*(N-1) ) ))
             if (i>N):

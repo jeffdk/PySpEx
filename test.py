@@ -19,8 +19,8 @@ lineStyleList=['--','..',':','-.']
 
 functionUsed=ExtendedHeavisideLambdaOffset
 #functionUsed = JumpOffset
-functionUsed= SmoothFuncOffset
-#functionUsed =  SinOffset
+#functionUsed= SmoothFuncOffset
+functionUsed =  SinOffset
 normUsed=LInfinityNorm
 normLabel="Infin"
 otherPlots=1
@@ -47,7 +47,7 @@ offsets=[offsetStart,offsetFinish]
 
 normVsOffsetList=[]
 
-N=11
+N=16
 #print dft_matrix(N)
 #print len(dft_matrix(N))
 
@@ -122,7 +122,7 @@ for t in arange(0,5.00,deltaT):
         fout. write('\n')
 
     #u_new = forwardEulerStep(waveEqRhs1D,u,deltaT)
-    #u_new = rungeKutta4Step(waveEqRhs1D,u,deltaT)
+    u_new = rungeKutta4Step(waveEqRhs1D,u,deltaT)
     #u_new[0] = filterTopk(u_new[0],3)
     #u_new[1] = filterTopk(u_new[1],3)
     #u_new[2] = filterTopk(u_new[2],3)
@@ -134,7 +134,7 @@ for t in arange(0,5.00,deltaT):
 
     #u_new[1] = (u_plus + u_minus )/2.0
     #u_new[2]= (u_plus - u_minus )/2.0
-    #u = u_new
+    u = u_new
 
 fout.close()
 
