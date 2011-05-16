@@ -47,7 +47,7 @@ offsets=[offsetStart,offsetFinish]
 
 normVsOffsetList=[]
 
-N=16
+N=11
 #print dft_matrix(N)
 #print len(dft_matrix(N))
 
@@ -194,12 +194,13 @@ print
 print  matrixTransform(dft_matrix(N+1),array(fd_derivs))
 print   matrixTransform(dft_matrix(N+1),array(derivs))
 
+print points
 
 
 
 
-mpl.plot(xs,ys,xs,dys,xs,fd,cheb_xis,derivs,cheb_xis,fd_derivs)
-mpl.legend(["func","spectral deriv","fd deriv"])
+mpl.plot(xs,ys,xs,dys,xs,fd,cheb_xis,derivs)
+mpl.legend(["func","spectral deriv","fd deriv","discrete spectral deriv"])
 mpl.show()
 #exit()
 

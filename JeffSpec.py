@@ -156,11 +156,11 @@ def dft_matrix(N):
 def matrixTransform(dftMatrix,points):
     result=[]
     #dimensions good continue
- #   print "matrix xform"
- #   print len(dftMatrix) 
- #   print len(dftMatrix[0])
- #   print len(points)
- #   print "-----"
+#    print "matrix xform"
+#    print len(dftMatrix) 
+#    print len(dftMatrix[0])
+#    print len(points)
+#    print "-----"
     if (len(dftMatrix) == len(points)) and  (len(dftMatrix)==  len(dftMatrix[0])):
         N=len(points)
         result = arange(N)
@@ -188,7 +188,7 @@ def deriv_matrix(N):
         result.append([])
         xj = -cos(pi*j/(N-1))
         cj = 1.
-        if ( j == 0) or ( j == (N-1) ):
+        if ( j == 0) or  ( j == (N-1) ):
             cj =2.
         for i in range(N):
             ci = 1.
@@ -197,19 +197,23 @@ def deriv_matrix(N):
             xi = -cos(pi*i/(N-1))
             guy = 0.0
             if (i == j) and (j==0):
-                #print "case i = j = 0:: i is ", i, " j is ", j
-                guy = - 1./6. * (1. + 2. * ( N+1)**2)            
+                print "case i = j = 0:: i is ", i, " j is ", j
+                guy =  1./6. * (1. + 2. * ( N+1)**2)   
+                print guy
             elif (i == j) and (j == N -1 ):
-                guy = 1./6. * (1. + 2. * ( N+1)**2)
-                #print "case i = j = N:: i is ", i, " j is ", j
+                guy = -1./6. * (1. + 2. * ( N+1)**2)
+                print "case i = j = N:: i is ", i, " j is ", j
+                print guy
             elif i == j:
                 print "case i = j !=0,N:: i is ", i, " j is ", j
-                guy = -0.5*xj /(1.-xj**2)
+                guy = -0.5*xi /(1.-xi**2)
                 print guy
             else:
                 print "case i != j     :: i is ", i, " j is ", j
-                guy = (-1.)**(1.+i+j)*ci / (cj * ( xi-xj))
+                guy = (-1.)**(i+j)*cj / (ci * ( xj-xi))
                 print guy
+                #canuto p455
+                #guy = -0.5 * cj/ci * (-1)**(j+i) / (sin( (j+i)*pi/(2.*(N-1) )) * sin( (j-i)*pi/(2.*(N-1) ) ))
             if (i>N):
                 guy = 0
                 print "SHOULD NOT GET HERE"
