@@ -87,8 +87,8 @@ N = 7
 fks=[]
 for i in range(N):
     ci = 1.0
-#    if  (i == N-1 ):
-#        ci = 2.0
+    if  (i == N-1 ):
+        ci = 2.0
     
     chebi = []
     for j in range(len(xs)):
@@ -132,14 +132,10 @@ for i in range(len(testxs)):
 ##########################
 #Test chebbies
 
+#for i in range(N):
+#    mpl.plot(xs,cheb(i,xs))
 
-
-for i in range(N):
-    mpl.plot(xs,cheb(i,xs))
-
-mpl.show()
-
-
+#mpl.show()
 
 #
 #############################
@@ -165,19 +161,37 @@ pseudofks= calc_fks(interpFunc,N-1)
 
 print pseudofks
 print fks
-   
+
+pseudopoints = matrixTransform(linalg.inv(dft_matrix(N)),pseudofks)
+cpoints = -cos(arange(0,N)*pi/(N-1))
+dpseudopoints =  matrixTransform(deriv_matrix(N),pseudopoints)
+dpseudofks = matrixTransform(dft_matrix(N), dpseudopoints)
+
 ys=[]  
 ypseudo=[]
+dypseudo=[]
 for x in xs:
-    ys.append(NthPartialSum(x,N-1, fks))
-    ypseudo.append(NthPartialSum(x,N-1, pseudofks))
+    ys.append(NthPartialSum(x,N, fks))
+    ypseudo.append(NthPartialSum(x,N, pseudofks))
+    dypseudo.append(NthPartialSum(x,N, dpseudofks))
 
-mpl.plot(xs, log(eos.data + 1.e-2) ,xs,ypseudo, xs,ys)
+mpl.plot(xs, log(eos.data + 1.e-2) ,xs,ypseudo)#, xs,ys,cpoints,pseudopoints)
+mpl.legend(["data","psedo-interp"])#,"galerk-interp","pseudo-points"])
+mpl.grid(True)
+mpl.show()
 
+mpl.plot(xs, eos.data  ,xs, exp(ypseudo)  - 1.e-2)#, xs,ys,cpoints,pseudopoints)
+mpl.legend(["data","psedo-interp"])#,"galerk-interp","pseudo-points"])
 #mpl.show()
 #mpl.semilogx(eos.points,eos.data)
-
+mpl.grid(True)
 mpl.show()
+
+mpl.plot(cpoints,dpseudopoints,xs,dypseudo)
+mpl.legend(["dpseudo-pts","dpseudo-interp"])
+mpl.grid(True)
+mpl.show()
+
 
 mpl.semilogy(range(N),absolute(pseudofks),range(N), absolute(fks))
 mpl.show()
