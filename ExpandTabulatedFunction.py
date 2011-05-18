@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+#
+#  Jeff Kaplan 5/2011
 #
 
 from matplotlib import pyplot as mpl
@@ -11,50 +12,7 @@ cheb = sp.eval_chebyt
 P= sp.legendre
 pi = arccos(0.)*2.
 from JeffSpec import *
-
-
-
-def trapezoidIntegrateFromPoints(xs, ys):
-
-    length = len (xs)
-    
-    sum = 0
-    for i in range(length-1):
-        sum = sum +  trapezoidal_piece(ys[i],ys[i+1],xs[i],xs[i+1])
-                                       
-
-    return sum
-
-
-def xtointerval(x,xmin,xmax):
-    return 2.0*(x - (xmin+xmax)/2.0 )/(xmax-xmin)
-
-
-
-def trapezoidal_piece(fa,fb, a, b):
-    return (b-a) * ( fa/2.0 + fb/2.0  ) 
- 
-
-def simpson(f, a ,b, n):
-    """f=name of function, a=initial value, b=end value, n=number of double intervals of size 2h"""
- 
-    n *= 2
-    h = (b - a) / n;
-    S = f(a)
- 
-    for i in range(1, n, 2):
-        x = a + h * i
-        S += 4 * f(x)
- 
-    for i in range(2, n-1, 2):
-        x = a + h * i
-        S += 2 * f(x)
- 
-    S += f(b)
-    F = h * S / 3
- 
-    return F
-
+from IntegrateTabulatedData import *
 
 
 eos=dataFunction()
@@ -67,21 +25,30 @@ print eosFile.readline()
 print eosFile.readline()
 print eosFile.readline()
 
-eos.readFuncDataFromFile(eosFile,[0],[1])
+eos.readFuncDataFromFile(eosFile,[0],[2])
 
 print eos.data
+
+expandInLogXspace=1
+funcExpanding = log(eos.data) +  35.0
 
 exmin=eos.points[0]
 exmax=eos.points[len(eos.points) -1]
 
-eps = log(eos.points[1]) - log(eos.points[0])
+e
+eps = eos.points[1] - eos.points[0]
 
 print "eps: ", eps
-xs =xtointerval(log(eos.points),log(exmin)-eps,log(exmax)+eps)
-realxs=xtointerval(log(eos.points),log(exmin),log(exmax))
+xs =xtointerval(eos.points,exmin-eps,exmax+eps)
+realxs=xtointerval(eos.points,exmin,exmax)
+
+if expandInLogXspace:
+    eps = log(eos.points[1]) - log(eos.points[0])
+    xs =xtointerval(log(eos.points),log(exmin)-eps,log(exmax)+eps)
+    realxs=xtointerval(log(eos.points),log(exmin),log(exmax))
 
  
-print trapezoidIntegrateFromPoints(xs,eos.data + 1.e-2)
+print trapezoidIntegrateFromPoints(xs,funcExpanding)
 
 N = 7
 fks=[]
@@ -93,14 +60,14 @@ for i in range(N):
     chebi = []
     for j in range(len(xs)):
         chebi.append(
-            log(eos.data[j] + 1.e-2)  *cheb(i,xs[j])
+            funcExpanding  *cheb(i,xs[j])
             )
     
     
 
     fks.append(
         trapezoidIntegrateFromPoints(xs,
-                                     log(eos.data + 1.e-2) / (1.0-xs*xs)**(1./2.)
+                                     funcExpanding / (1.0-xs*xs)**(1./2.)
                                      * cheb(i,xs) * (ci)/pi
                                      )
         )
@@ -110,8 +77,6 @@ for i in range(N):
 #
 #  tests integration of function f(x)=x
 #
-
-
 
 testxs = arange(0.0, 1.0, 1e-2)
 
@@ -142,7 +107,7 @@ for i in range(len(testxs)):
 
 
 def interpFunc(x):
-    func = log(eos.data + 1.e-2) 
+    func =funcExpanding
     index =index_from_value(x,realxs )
 
     a = realxs[index -1]
@@ -166,21 +131,26 @@ pseudopoints = matrixTransform(linalg.inv(dft_matrix(N)),pseudofks)
 cpoints = -cos(arange(0,N)*pi/(N-1))
 dpseudopoints =  matrixTransform(deriv_matrix(N),pseudopoints)
 dpseudofks = matrixTransform(dft_matrix(N), dpseudopoints)
+intpseudo =  matrixTransform(linalg.inv(deriv_matrix(N)), pseudopoints)
+intpseudofks = matrixTransform(dft_matrix(N),intpseudo)
 
 ys=[]  
 ypseudo=[]
 dypseudo=[]
+intpseudo = []
 for x in xs:
     ys.append(NthPartialSum(x,N, fks))
     ypseudo.append(NthPartialSum(x,N, pseudofks))
     dypseudo.append(NthPartialSum(x,N, dpseudofks))
+    intpseudo.append(NthPartialSum(x,N, intpseudofks))
 
-mpl.plot(xs, log(eos.data + 1.e-2) ,xs,ypseudo)#, xs,ys,cpoints,pseudopoints)
+
+mpl.plot(xs, funcExpanding ,xs,ypseudo)#, xs,ys,cpoints,pseudopoints)
 mpl.legend(["data","psedo-interp"])#,"galerk-interp","pseudo-points"])
 mpl.grid(True)
 mpl.show()
 
-mpl.plot(xs, eos.data  ,xs, exp(ypseudo)  - 1.e-2)#, xs,ys,cpoints,pseudopoints)
+mpl.plot(xs, intpseudo )#, xs,ys,cpoints,pseudopoints)
 mpl.legend(["data","psedo-interp"])#,"galerk-interp","pseudo-points"])
 #mpl.show()
 #mpl.semilogx(eos.points,eos.data)

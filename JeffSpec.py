@@ -263,6 +263,14 @@ def NthPartialSum(x,N,coefs):
         val = val + coefs[i]*Ti
     return val
 
+
+
+
+#Maps array of x values to the interval [-1,1]
+def xtointerval(x,xmin,xmax):
+    return 2.0*(x - (xmin+xmax)/2.0 )/(xmax-xmin)
+
+
 ## Does a log2(N) search for the index value in an monotonic array near r
 def index_from_value(r,array ):
     min =0
