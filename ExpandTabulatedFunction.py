@@ -131,8 +131,16 @@ pseudopoints = matrixTransform(linalg.inv(dft_matrix(N)),pseudofks)
 cpoints = -cos(arange(0,N)*pi/(N-1))
 dpseudopoints =  matrixTransform(deriv_matrix(N),pseudopoints)
 dpseudofks = matrixTransform(dft_matrix(N), dpseudopoints)
-intpseudo =  matrixTransform(linalg.inv(deriv_matrix(N)), pseudopoints)
-intpseudofks = matrixTransform(dft_matrix(N),intpseudo)
+intpseudopoints =  matrixTransform(linalg.inv(deriv_matrix(N)), pseudopoints)
+intpseudofks = matrixTransform(dft_matrix(N),intpseudopoints)
+
+
+## appears det deriv matrix is nearly 0, so inversion is bad
+## so we can't integrate by inverting the deriv matrix  =(
+print 
+print linalg.det(deriv_matrix(N))
+print 
+print intpseudopoints
 
 ys=[]  
 ypseudo=[]
@@ -150,7 +158,7 @@ mpl.legend(["data","psedo-interp"])#,"galerk-interp","pseudo-points"])
 mpl.grid(True)
 mpl.show()
 
-mpl.plot(xs, intpseudo )#, xs,ys,cpoints,pseudopoints)
+mpl.plot(xs, intpseudo, cpoints, intpseudopoints )#, xs,ys,cpoints,pseudopoints)
 mpl.legend(["data","psedo-interp"])#,"galerk-interp","pseudo-points"])
 #mpl.show()
 #mpl.semilogx(eos.points,eos.data)
