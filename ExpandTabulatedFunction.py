@@ -25,12 +25,12 @@ print eosFile.readline()
 print eosFile.readline()
 print eosFile.readline()
 
-eos.readFuncDataFromFile(eosFile,[0],[2])
+eos.readFuncDataFromFile(eosFile,[0],[1])
 
 print eos.data
 
 expandInLogXspace=1
-funcExpanding = log(eos.data) +  35.0
+funcExpanding = log(eos.data + 1.0e-2)
 
 exmin=eos.points[0]
 exmax=eos.points[len(eos.points) -1]
@@ -50,7 +50,9 @@ if expandInLogXspace:
  
 print trapezoidIntegrateFromPoints(xs,funcExpanding)
 
+#### N is number of terms in expansion
 N = 7
+
 fks=[]
 for i in range(N):
     ci = 1.0
@@ -97,10 +99,10 @@ for i in range(len(testxs)):
 ##########################
 #Test chebbies
 
-#for i in range(N):
-#    mpl.plot(xs,cheb(i,xs))
+# for i in range(N):
+#     mpl.plot(xs,cheb(i,xs))
 
-#mpl.show()
+# mpl.show()
 
 #
 #############################
@@ -131,26 +133,29 @@ pseudopoints = matrixTransform(linalg.inv(dft_matrix(N)),pseudofks)
 cpoints = -cos(arange(0,N)*pi/(N-1))
 dpseudopoints =  matrixTransform(deriv_matrix(N),pseudopoints)
 dpseudofks = matrixTransform(dft_matrix(N), dpseudopoints)
-intpseudopoints =  matrixTransform(linalg.inv(deriv_matrix(N)), pseudopoints)
-intpseudofks = matrixTransform(dft_matrix(N),intpseudopoints)
+d2pseudopoints =  matrixTransform((deriv_matrix(N)), dpseudopoints)
+d2pseudofks = matrixTransform(dft_matrix(N),d2pseudopoints)
 
 
 ## appears det deriv matrix is nearly 0, so inversion is bad
 ## so we can't integrate by inverting the deriv matrix  =(
+
+print "dpseudofks"
+print dpseudofks
+
 print 
-print linalg.det(deriv_matrix(N))
-print 
-print intpseudopoints
+print "d2pseudopoints:"
+print d2pseudopoints
 
 ys=[]  
 ypseudo=[]
 dypseudo=[]
-intpseudo = []
+d2pseudo = []
 for x in xs:
     ys.append(NthPartialSum(x,N, fks))
     ypseudo.append(NthPartialSum(x,N, pseudofks))
     dypseudo.append(NthPartialSum(x,N, dpseudofks))
-    intpseudo.append(NthPartialSum(x,N, intpseudofks))
+    d2pseudo.append(NthPartialSum(x,N, d2pseudofks))
 
 
 mpl.plot(xs, funcExpanding ,xs,ypseudo)#, xs,ys,cpoints,pseudopoints)
@@ -158,12 +163,12 @@ mpl.legend(["data","psedo-interp"])#,"galerk-interp","pseudo-points"])
 mpl.grid(True)
 mpl.show()
 
-mpl.plot(xs, intpseudo, cpoints, intpseudopoints )#, xs,ys,cpoints,pseudopoints)
-mpl.legend(["data","psedo-interp"])#,"galerk-interp","pseudo-points"])
-#mpl.show()
-#mpl.semilogx(eos.points,eos.data)
-mpl.grid(True)
-mpl.show()
+# mpl.plot(xs, d2pseudo, cpoints, d2pseudopoints )#, xs,ys,cpoints,pseudopoints)
+# mpl.legend(["data","d2psedo-interp"])#,"galerk-interp","pseudo-points"])
+# #mpl.show()
+# #mpl.semilogx(eos.points,eos.data)
+# mpl.grid(True)
+# mpl.show()
 
 mpl.plot(cpoints,dpseudopoints,xs,dypseudo)
 mpl.legend(["dpseudo-pts","dpseudo-interp"])
