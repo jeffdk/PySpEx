@@ -29,13 +29,15 @@ eos.readFuncDataFromFile(eosFile,[0],[1])
 
 print eos.data
 
+
 expandInLogXspace=1
 funcExpanding = log(eos.data + 1.0e-2)
+
 
 exmin=eos.points[0]
 exmax=eos.points[len(eos.points) -1]
 
-e
+
 eps = eos.points[1] - eos.points[0]
 
 print "eps: ", eps
@@ -47,6 +49,14 @@ if expandInLogXspace:
     xs =xtointerval(log(eos.points),log(exmin)-eps,log(exmax)+eps)
     realxs=xtointerval(log(eos.points),log(exmin),log(exmax))
 
+
+
+fdeos = []
+
+for i in range(len(realxs)-1):
+    fdeos.append((funcExpanding[i+1]-funcExpanding[i])/(realxs[i+1]-realxs[i]))
+
+fdeos.append(fdeos[len(eos.points)-2])
  
 print trapezoidIntegrateFromPoints(xs,funcExpanding)
 
@@ -151,17 +161,25 @@ ys=[]
 ypseudo=[]
 dypseudo=[]
 d2pseudo = []
+fdpseudoys=[0.0]
+count = 0
 for x in xs:
     ys.append(NthPartialSum(x,N, fks))
     ypseudo.append(NthPartialSum(x,N, pseudofks))
     dypseudo.append(NthPartialSum(x,N, dpseudofks))
     d2pseudo.append(NthPartialSum(x,N, d2pseudofks))
+    if count >= 1.0:
+        fdpseudoys.append(( ys[count] - ys[count-1] )/ (xs[count] - xs[count-1] ))
+    count +=1;
+        
 
 
 mpl.plot(xs, funcExpanding ,xs,ypseudo)#, xs,ys,cpoints,pseudopoints)
 mpl.legend(["data","psedo-interp"])#,"galerk-interp","pseudo-points"])
 mpl.grid(True)
 mpl.show()
+
+
 
 # mpl.plot(xs, d2pseudo, cpoints, d2pseudopoints )#, xs,ys,cpoints,pseudopoints)
 # mpl.legend(["data","d2psedo-interp"])#,"galerk-interp","pseudo-points"])
@@ -170,8 +188,8 @@ mpl.show()
 # mpl.grid(True)
 # mpl.show()
 
-mpl.plot(cpoints,dpseudopoints,xs,dypseudo)
-mpl.legend(["dpseudo-pts","dpseudo-interp"])
+mpl.plot(cpoints,dpseudopoints,xs,dypseudo,realxs,fdeos)
+mpl.legend(["dpseudo-pts","dpseudo-interp","finite-difference"])
 mpl.grid(True)
 mpl.show()
 
