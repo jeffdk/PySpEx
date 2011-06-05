@@ -17,7 +17,7 @@ class table:
         print "creating table"
 
 filesToRead=[]
-#filesToRead=['GhCe0.dat']
+filesToRead=['Lev0_GhCe.dat']
 
 dataList=[]
 
@@ -42,42 +42,55 @@ colorList=['k','r','g','b','brown','k','r','g','b','k','r','g','b']
 ##normalize by starting values for use in density plots
 normalizeByStartingValues=True
 
-constraints=False
-maxdense=1
-restmass=False
+#ONLY USE 1 AT A TIME
+constraints=True
+maxdense=0
+restmass=0
 maxdensediff=0
+convergenceConstraints=True
+
+HydroGridKm=7.5*1.5*1.5;
+HydroGridPoints=3*(array([15,15,15])+array([0,1,2])*6)
+HydroDh = 1.0/HydroGridPoints * HydroGridKm
+
+print HydroDh
 
 legendList=['Vlow res','Low res','Mid res','High res', 'Vhigh res']
 
 if constraints:
-    filesToRead=['GhCe0.dat','GhCe1.dat','GhCe2.dat','GhCe3.dat','GhCe4.dat']
+    filesToRead=['Lev0_GhCe.dat','Lev1_GhCe.dat','Lev2_GhCe.dat']
     headerFlag=True
     columnsToPlot=(0,6)
-    legendList=['Vlow res','Low res','Mid res','High res', 'Vhigh res']
-
+    legendList=['Low res','Mid res','High res']
+    
+    if convergenceConstraints:
+            columnsToPlot=(0,7)
+            legendList=['|Mid - Low|','|High - Mid|']
 if maxdense:
     filesToRead=['DensestPoint0.dat','DensestPoint1.dat','DensestPoint2.dat','DensestPoint3.dat']
     filesToRead=['DensestPoint0.dat','DensestPoint1.dat','DensestPoint2.dat']
-    filesToRead=['DensestPoint0.dat','DensestPoint1.dat','DensestPoint2.dat','DensestPoint3.dat']
+    filesToRead=['Lev0_DensestPoint.dat','Lev1_DensestPoint.dat','Lev2_DensestPoint.dat']#,'DensestPoint3.dat']
     columnsToPlot=(0,4)
     legendList=['Vlow res','Low res','Mid res','High res', 'Vhigh res']
     legendList=['Low res','Mid res','High res','Vhigh res']
-#    legendList=['Low res','Mid res','High res', 'Vhigh res']
+    legendList=['Low res','Mid res','High res']
 
 
 if restmass:
-    filesToRead=['RestMass0.dat','RestMass1.dat','RestMass2.dat']
+    filesToRead=['Lev0_RestMass.dat','Lev1_RestMass.dat','Lev2_RestMass.dat']#,'RestMass1.dat','RestMass2.dat']
     columnsToPlot=(0,2)
     legendList=['|Mid - Low|','|High - Mid|']
  
 if maxdensediff:
     filesToRead=['DensestPoint0.dat','DensestPoint1.dat','DensestPoint2.dat','DensestPoint3.dat','DensestPoint4.dat']
     filesToRead=['DensestPoint0.dat','DensestPoint1.dat','DensestPoint2.dat']
+    filesToRead=['Lev0_DensestPoint.dat','Lev1_DensestPoint.dat','Lev2_DensestPoint.dat']
     columnsToPlot=(0,9)
     legendList=['|Vlow - Low|','|Mid - Low|','|High - Mid|','|Vhigh - High|']
     legendList=['|Mid - Low|','|High - Mid|']
 #    legendList=['|Mid - Low|','|High - Mid|','|Vhigh-High|']
 #    filesToRead=['DensestPoint0.dat','DensestPoint1.dat','DensestPoint2.dat','DensestPoint3.dat']
+
 fileCount=0
 for i in filesToRead:
     currentFile = open(i,'r')
@@ -128,6 +141,12 @@ for i in filesToRead:
             dataList[fileCount].append([])
             dataList[fileCount][6].append(float(splittedLine[1])/float(splittedLine[5]))
 
+            if convergenceConstraints and fileCount != 0: 
+                dataList[fileCount].append([])
+                previousFileConstraint =  dataList[fileCount-1][1][len( dataList[fileCount][1])-1]
+                dataList[fileCount][7].append(log(float(splittedLine[1])/previousFileConstraint)/
+                                              log(HydroDh[fileCount]/HydroDh[fileCount-1]) )
+
         if restmass and fileCount != 0:
             dataList[fileCount].append([])
             previousFileMass =  dataList[fileCount-1][1][len( dataList[fileCount][1])-1]
@@ -151,7 +170,7 @@ for i in filesToRead:
 #        times=dataList[fileCount][columnsToPlot[0]]
     print len(times), len(dataList[fileCount][columnsToPlot[1]]), fileCount
     #if restmass, we dont want to plot the first guy!
-    if (restmass or maxdensediff) and fileCount ==0:
+    if (restmass or maxdensediff or convergenceConstraints) and fileCount ==0:
         fileCount=fileCount+1
         continue
         
@@ -178,6 +197,19 @@ if constraints:
     #mpl.axis([0,.020,8e-4,1.3e-1])
     mpl.legend(legendList,loc=0)
     mpl.show()
+
+if convergenceConstraints:
+    mpl.grid(True)
+    mpl.title("Convergence rate  for constraints \n")
+    
+    mpl.xlabel(' \n Time elapsed (s)')
+    mpl.ylabel('Normalized constraint violation')
+
+    mpl.plot(*plotList)
+    #mpl.axis([0,.020,8e-4,1.3e-1])
+    mpl.legend(legendList,loc=0)
+    mpl.show()
+
 
 if maxdense:
     mpl.title("MaxDense: WENO3 fixed FLUID resolution\n")
