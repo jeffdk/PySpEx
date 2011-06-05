@@ -23,6 +23,7 @@ dataList=[]
 
 timeConversionFactor = 4.926e-6
 densityConversionFactor= 6.173e17
+pi = arccos(0.)*2.
 
 #Do the files we are reading contain headers?
 headerFlag=True
@@ -49,12 +50,16 @@ restmass=0
 maxdensediff=0
 convergenceConstraints=True
 
+GrGridRadians=6*pi
+GrAngularPoints=array([6,6,6])+array([0,1,2])
+GrAngularDh=1.0/GrAngularPoints *GrGridRadians
+
 HydroGridKm=7.5*1.5*1.5;
 HydroGridPoints=3*(array([15,15,15])+array([0,1,2])*6)
 HydroDh = 1.0/HydroGridPoints * HydroGridKm
 
-print HydroDh
-
+print "HydroDh ",  HydroDh
+print "GrAngDh ",  GrAngularDh
 legendList=['Vlow res','Low res','Mid res','High res', 'Vhigh res']
 
 if constraints:
@@ -66,6 +71,9 @@ if constraints:
     if convergenceConstraints:
             columnsToPlot=(0,7)
             legendList=['|Mid - Low|','|High - Mid|']
+            columnsToPlot=(0,7)
+                        
+
 if maxdense:
     filesToRead=['DensestPoint0.dat','DensestPoint1.dat','DensestPoint2.dat','DensestPoint3.dat']
     filesToRead=['DensestPoint0.dat','DensestPoint1.dat','DensestPoint2.dat']
@@ -145,7 +153,8 @@ for i in filesToRead:
                 dataList[fileCount].append([])
                 previousFileConstraint =  dataList[fileCount-1][1][len( dataList[fileCount][1])-1]
                 dataList[fileCount][7].append(log(float(splittedLine[1])/previousFileConstraint)/
-                                              log(HydroDh[fileCount]/HydroDh[fileCount-1]) )
+                                              log(GrAngularDh[fileCount]/GrAngularDh[fileCount-1]))
+                                           #   log(HydroDh[fileCount]/HydroDh[fileCount-1]) )
 
         if restmass and fileCount != 0:
             dataList[fileCount].append([])
