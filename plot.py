@@ -153,8 +153,8 @@ for i in filesToRead:
                 dataList[fileCount].append([])
                 previousFileConstraint =  dataList[fileCount-1][1][len( dataList[fileCount][1])-1]
                 dataList[fileCount][7].append(log(float(splittedLine[1])/previousFileConstraint)/
-                                              log(GrAngularDh[fileCount]/GrAngularDh[fileCount-1]))
-                                           #   log(HydroDh[fileCount]/HydroDh[fileCount-1]) )
+                                           #   log(GrAngularDh[fileCount]/GrAngularDh[fileCount-1]))
+                                              log(HydroDh[fileCount]/HydroDh[fileCount-1]) )
 
         if restmass and fileCount != 0:
             dataList[fileCount].append([])
