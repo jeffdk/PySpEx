@@ -26,6 +26,9 @@ print eosFile.readline()
 print eosFile.readline()
 
 eos.readFuncDataFromFile(eosFile,[0],[1])
+press.readFuncDataFromFile(eosFile,[0],[2])
+
+
 
 print eos.data
 
