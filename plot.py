@@ -122,6 +122,7 @@ for i in filesToRead:
 
         if normalizeByStartingValues and (maxdense or maxdensediff):
             densityConversionFactor = 1.0/float(splittedLine[4])
+            print "denseConversionFactor: ", densityConversionFactor
             normalizeByStartingValues=0
 
 #        if len(splittedLine) != len(headers):
@@ -153,8 +154,8 @@ for i in filesToRead:
                 dataList[fileCount].append([])
                 previousFileConstraint =  dataList[fileCount-1][1][len( dataList[fileCount][1])-1]
                 dataList[fileCount][7].append(log(float(splittedLine[1])/previousFileConstraint)/
-                                              log(GrAngularDh[fileCount]/GrAngularDh[fileCount-1]))
-                                           #   log(HydroDh[fileCount]/HydroDh[fileCount-1]) )
+                                           #   log(GrAngularDh[fileCount]/GrAngularDh[fileCount-1]))
+                                              log(HydroDh[fileCount]/HydroDh[fileCount-1]) )
 
         if restmass and fileCount != 0:
             dataList[fileCount].append([])
@@ -166,7 +167,7 @@ for i in filesToRead:
             dataList[fileCount].append([])
             previousFileDensity =  float(dataList[fileCount-1][4][len( dataList[fileCount][4])-1])
             print previousFileDensity, float(splittedLine[4])
-            dataList[fileCount][9].append(abs(float(splittedLine[4]) - previousFileDensity )*densityConversionFactor )
+            dataList[fileCount][9].append(abs(float(splittedLine[4]) - previousFileDensity ) )
 
 
         lineCount+=1
@@ -212,7 +213,7 @@ if convergenceConstraints:
     mpl.title("Convergence rate  for constraints \n")
     
     mpl.xlabel(' \n Time elapsed (s)')
-    mpl.ylabel('Normalized constraint violation')
+    mpl.ylabel('Exponent: ln( $GhCe_1$/$GhCe_2$ ) / ln ($h_1$/$h_2$)')
 
     mpl.plot(*plotList)
     #mpl.axis([0,.020,8e-4,1.3e-1])
@@ -221,7 +222,7 @@ if convergenceConstraints:
 
 
 if maxdense:
-    mpl.title("MaxDense: WENO3 fixed FLUID resolution\n")
+    mpl.title("Fractional deviation from initial $\rho_c$")
     mpl.grid(True)
     a=mpl.axes()
     #mpl.setp(a,xticks=[0.0,0.001,0.002,0.003,0.004,0.005],yticks=[0.9985,0.999,0.9995,1.0,1.0005,1.001,1.0015])
@@ -237,14 +238,14 @@ if maxdensediff:
     a=mpl.axes()
     #mpl.setp(a,xticks=[0.0,0.004,0.008,0.012,0.016,0.020])
     mpl.xlabel('\n Time elapsed (s)')
-    mpl.ylabel('Difference in maximum density/Initial density - 1.0')
+    mpl.ylabel('Fractional difference in $\rho_{max}$')
     mpl.plot(*plotList)
     mpl.legend(legendList,loc=0)
     mpl.show()
 
 if restmass:
    
-    mpl.title("Convergence of rest mass for an isolated 1.625$M_{sun}$ TOV star\n")
+    mpl.title("Convergence of rest mass for an isolated 1.779$M_{sun}$ TOV star\n")
     mpl.grid(True)
     #print plotList
     mpl.semilogy(*plotList)
