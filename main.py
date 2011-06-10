@@ -11,6 +11,12 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 
 
+from SimulationClass.py import *
+
+
+
+
+
 #Never got these things working 
 
 # import os

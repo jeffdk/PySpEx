@@ -3,8 +3,21 @@
 #
 from numpy import *
 
+from dataFunction import *
+
 class DatSet:
 
+    title=''
+    simulationName =''
+
+    Data=dataFunction()
+
+    def __init__(self, filename):
+        
+        filehandle=open(filename, 'r')
+
+        
+        
 
 class Simulation:
 
