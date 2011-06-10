@@ -44,11 +44,13 @@ colorList=['k','r','g','b','brown','k','r','g','b','k','r','g','b']
 normalizeByStartingValues=True
 
 #ONLY USE 1 AT A TIME
-constraints=True
-maxdense=0
+constraints=False
+maxdense=1
 restmass=0
-maxdensediff=0
-convergenceConstraints=True
+maxdensediff=1
+convergenceConstraints=False
+
+filesToReadPrefixDir='data/'
 
 GrGridRadians=6*pi
 GrAngularPoints=array([6,6,6])+array([0,1,2])
@@ -101,7 +103,7 @@ if maxdensediff:
 
 fileCount=0
 for i in filesToRead:
-    currentFile = open(i,'r')
+    currentFile = open(filesToReadPrefixDir + i,'r')
     dataList.append([])
     if dumpFirstLineFlag:
         currentFile.readline()
