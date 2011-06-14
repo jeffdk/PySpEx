@@ -16,6 +16,7 @@ from IntegrateTabulatedData import *
 
 
 eos=dataFunction()
+#press=dataFunction()
 
 eosFile=open("LSepsPcs.dat",'r')
 
@@ -26,7 +27,7 @@ print eosFile.readline()
 print eosFile.readline()
 
 eos.readFuncDataFromFile(eosFile,[0],[1])
-press.readFuncDataFromFile(eosFile,[0],[2])
+#press.readFuncDataFromFile(eosFile,[0],[2])
 
 
 
@@ -140,7 +141,7 @@ pseudofks= calc_fks(interpFunc,N-1)
  
 
 print pseudofks
-print fks
+print "COEFFICIENTS:", fks
 
 pseudopoints = matrixTransform(linalg.inv(dft_matrix(N)),pseudofks)
 cpoints = -cos(arange(0,N)*pi/(N-1))
