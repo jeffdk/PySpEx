@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 from numpy import *
 from matplotlib import pyplot as mpl
+#mpl.rcParams['text.usetex'] = True
+mpl.rc('text',usetex=True)
+mpl.rc('font', family='serif')
+font ={'size':24}
+mpl.rc('font',**font)
+mpl.rc('axes', labelsize='large')
+
 import sys
 
 
@@ -38,17 +45,18 @@ columnsToPlot=(0,9)
 
 plotList=[]
 
-colorList=['k','r','g','b','brown','k','r','g','b','k','r','g','b']
+colorList=['k','r--','g-.','b','brown','k','r','g','b','k','r','g','b']
 
 ##normalize by starting values for use in density plots
 normalizeByStartingValues=True
 
 #ONLY USE 1 AT A TIME
-constraints=True
+constraints=False
 maxdense=0
 restmass=0
 maxdensediff=0
-convergenceConstraints=True
+convergenceConstraints=False
+psi4=1
 
 GrGridRadians=6*pi
 GrAngularPoints=array([6,6,6])+array([0,1,2])
@@ -72,7 +80,10 @@ if constraints:
             columnsToPlot=(0,7)
             legendList=['|Mid - Low|','|High - Mid|']
             columnsToPlot=(0,7)
-                        
+if psi4:
+    filesToRead=['Lev1_rPsi4_R350.dat','Lev2_rPsi4_R350.dat','Lev3_rPsi4_R350.dat']
+    columnsToPlot=(0,1)
+    legendList=['Low res','Mid res','High res']                     
 
 if maxdense:
     filesToRead=['DensestPoint0.dat','DensestPoint1.dat','DensestPoint2.dat','DensestPoint3.dat']
@@ -193,8 +204,6 @@ for i in filesToRead:
 #print headers
 #print dataList
 
-font ={'size':16}
-mpl.rc('font',**font)
 
 if constraints:
     mpl.grid(True)
@@ -253,5 +262,16 @@ if restmass:
     mpl.setp(a,xticks=[0.002,0.004,0.006,0.008])
     mpl.xlabel('\n Time elapsed (s)')
     mpl.ylabel('Difference in Rest Mass $M_{sun}$')
+    mpl.legend(legendList,loc=0)
+    mpl.show()
+
+if psi4:
+    mpl.title("GW from 6 Orbit Inspiral of two 1.779$M_{\odot}$ Neutron Stars")
+    mpl.grid(True)
+    print plotList
+    mpl.plot(*plotList)
+    a=mpl.axes()
+    mpl.xlabel('Time elapsed (s)')
+    mpl.ylabel('$\Re{[\Psi_4]}$ {\large (2,-2) mode}')
     mpl.legend(legendList,loc=0)
     mpl.show()
