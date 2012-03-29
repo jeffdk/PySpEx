@@ -1,6 +1,15 @@
-#Git ignore file
 #
-
+# Don't want to include  temporary files or python binaries
+#
 
 *~
 *.pyc
+
+#
+# Don't want to include data files except a few using !
+#
+
+*.dat
+*.ygraph
+*.h5
+
