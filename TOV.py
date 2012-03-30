@@ -16,11 +16,15 @@ c    = C_CGS
 Msun = MSUN_CGS
 G    = G_CGS
 
+c = G = Msun = 1.
 # EoS so hard coded right now
 Kappa=100.
 Gamma=2.
 def densityFromPressure(P):
-    return pow((P/Kappa),(1./Gamma))
+    result = pow((P/Kappa),(1./Gamma))
+    if P < 0.0:
+        result = 0.0
+    return result
 
 def pressureFromDensity(rho):
     return Kappa* pow(rho,Gamma)
@@ -28,20 +32,19 @@ def pressureFromDensity(rho):
 #Initial conditions
 
 #must start from non-zero radius so eqns not singular
-r0 = 1e-3 
-
-rhoc=.001
+r0 = 1e-6
+rhoc=0.001
 Pc = pressureFromDensity(rhoc)
 Mc = 4./3. * PI * r0**3
 
-
-dx = 0.01
+rend=10.35
+dx = 0.001
 
 # vars = M(r), P(r)
 varsc=[Mc,Pc]
 
-
-
+xs = arange(r0,rend,dx)
+print xs
 #vars[0] is M, vars[1] is r
 def derivTOV(vars,r):
     M = vars[0]
@@ -49,7 +52,7 @@ def derivTOV(vars,r):
     rho = densityFromPressure(P)
     
     dPdr = -G / r**2 * ( rho + P/c**2) * ( M + 4.*PI * r**3 * P /c**2) 
-    dPdr = dPdt /(1. - 2.*G*M/(c**2*r))
+    dPdr = dPdr /(1. - 2.*G*M/(c**2*r))
     dMdr = 4. * PI * rho *r**2
 
     return [dMdr,dPdr]
@@ -58,7 +61,10 @@ for r in arange(0.0, .003, .0005):
     print r , densityFromPressure(r)
 
 
+result=odeint(derivTOV,varsc,xs)
 
+
+print result
 
 
 
