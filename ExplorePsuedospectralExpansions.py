@@ -14,17 +14,19 @@ from JeffSpec import *
 
 from OneDTestFunctions import *
 
+
 colorList=['k','r','g','b']
-lineStyleList=['--','..',':','-.']
+lineStyleList=['--','-.',':','..']
 
 functionUsed=ExtendedHeavisideLambdaOffset
+#functionUsed=C1FunctionOddOffset
 #functionUsed = JumpOffset
 #functionUsed= SmoothFuncOffset
 #functionUsed =  SinOffset
 normUsed=LInfinityNorm
-normLabel="Infin"
+normLabel="Inf"
 #normUsed=L2Norm
-#normLabel="2Norm"
+#normLabel="2"
 otherPlots=1
 plotCoefficientPowerVsOffset=0
 calcNormInteractive=1
@@ -116,14 +118,27 @@ for N in resolutionsToRun:
 
             normVsOffsetList.append(offsets)
             normVsOffsetList.append(currentNormList)
+            normVsOffsetList.append(colorList[N+numResolutions-1-maxRes])
 
    # print "values: ", len(values[i])
 ##THIS ENDS COEFFS(OFFSET META-FLAG)
 #print "fks: ",biglist
 #mpl.plot(*ColocPoints)
 
-
-
+from pylab import *
+from matplotlib.widgets import Slider, Button, RadioButtons
+from matplotlib import rc, rcParams
+#rc('text', usetex=True)
+rc('axes', labelsize=20) #24
+rc('axes', titlesize=24) #24
+rc('legend', fontsize=18) #16
+rcParams['figure.subplot.left'] = 0.10
+rcParams['figure.subplot.right'] = 0.96
+rcParams['figure.subplot.bottom'] = 0.10
+rcParams['figure.subplot.top'] = 0.95
+rcParams['figure.figsize'] = 10, 8
+rc('xtick', labelsize=16)
+rc('ytick', labelsize=16)
 if otherPlots:
 ##COEFFS FOR OFFSET
 
@@ -134,13 +149,20 @@ if otherPlots:
         mpl.axis([offsetStart,offsetFinish,1e-7,1])
         mpl.legend(legendList,loc=0)
 
-    mpl.figure(figsize=(9.3,7.2))
-    mpl.semilogy(*normVsOffsetList)
-    mpl.axis([offsetStart,offsetFinish,1e-5,10])
-    mpl.legend(resolutions)
+    figure(figsize=(9.3,7.2))
+    semilogy(*normVsOffsetList)
+    for k in range(numResolutions):
+        currentRes = resolutions[k]
+        for i in range(currentRes+1):
+            point = (-cos(pi*i/currentRes))
+        #print "line at ",point,"\tres: ",currentRes,lineStyleList[k], colorList[k]
+            axvline(point,linestyle=lineStyleList[k], color=colorList[k])
 
-
-
+    axis([offsetStart,offsetFinish,1e-3,1e-0])
+    legend(["N = %s" % res for res in resolutions], loc=8)
+    ylabel("L%s Norm of truncation error" % normLabel)
+    xlabel("Location of non-smooth point")
+    title("Global error for N'th order expansion")
 
     #mpl.subplot(222)
     #mpl.figure(figsize=(8,6))
@@ -152,9 +174,6 @@ if otherPlots:
     #mpl.axvline(ColocPoints[i])
     #mpl.show()
 
-
-from pylab import *
-from matplotlib.widgets import Slider, Button, RadioButtons
 figure(figsize=(16,10))
 ax = subplot(121)
 subplots_adjust( bottom=0.15)
@@ -167,7 +186,7 @@ powerSpectri=[]
 psLegend=[]
 for k in range(numResolutions): 
 
-    psLegend.append("Points: %s\n  L%sDiff: %s\n  +/-: %s\n" %    (resolutions[k],normLabel,  normList[k][0],  normList[k][1]))
+    psLegend.append("Order: %s\n  L%s error: %s\n  +/-: %s\n" %    (resolutions[k], normLabel,  normList[k][0],  normList[k][1]))
 
     color = colorList[k]
     
@@ -185,6 +204,10 @@ for k in range(numResolutions):
 #print
 
 fig1 =semilogy(*powerSpectri) 
+ax.set_xlabel("n (Coefficient #)")
+ax.set_ylabel("Value of n'th coefficient")
+ax.set_title("Spectral space")
+
 
 axis([0, resolutions[numResolutions-1], 1e-6, 1])
 legend(psLegend, loc=0)
@@ -198,28 +221,31 @@ funcPlots =[]
 funcPlots.append(xs)
 funcPlots.append(functionUsed(xs,offsetToPlotAt))
 funcPlots.append('purple')
-funcLegend=["func"]
+funcLegend=["f(x)"]
+pltList = []
 for k in range(numResolutions):
     funcPlots.append(xs)
     funcPlots.append(NthPartialSum(xs,resolutions[k],examplePlot[k]))
-    funcLegend.append(resolutions[k])
+    funcLegend.append("N = %s" %resolutions[k])
     color = colorList[k]
     funcPlots.append(color)
 
-fig2 =plot(*funcPlots)
+    ##plot colocation points for res's
+    #k=numResolutions-1
+    currentRes = resolutions[k]
+    for i in range(currentRes+1):
+        point = (-cos(pi*i/currentRes))
+        #print "line at ",point,"\tres: ",currentRes,lineStyleList[k], colorList[k]
+        axvline(point,linestyle=lineStyleList[k], color=colorList[k])
+fig2 = plot(*funcPlots)
+ax.set_xlabel("x")
+ax.set_ylabel("f(x) = %s" % functionUsed.__name__)
+ax.set_title("Physical space")
+legend(fig2, funcLegend, loc=8)
 axis([-1,1, -1.2, 1.2])
 
-##plot colocation points for res's
-k=numResolutions-1
-currentRes = resolutions[k]
-for i in range(currentRes+1):
-    point = (-cos(pi*i/currentRes))
-    #print "line at ",point,"\tres: ",currentRes,lineStyleList[k], colorList[k]
-    axvline(point,linestyle=lineStyleList[k], color=colorList[k])
-
-
 axcolor = 'lightgoldenrodyellow'
-axfreq = axes([0.25, 0.1, 0.65, 0.03], axisbg=axcolor)
+axfreq = axes([0.15, 0.05, 0.55, 0.03], axisbg=axcolor)
 
 
 sOffset = Slider(axfreq, 'Offset', offsetStart, offsetFinish, valinit=offsetToPlotAt)
@@ -239,8 +265,8 @@ def update(val):
         
         if calcNormInteractive:
             norm = normUsed(func, freqs)
-            psLegend.append("Points: %s\n  L2diff: %s\n  +/-: %s\n" % 
-                            (resolutions[l], norm[0], norm[1]))
+            psLegend.append("Order: %s\n  L%s error: %s\n  +/-: %s\n" % 
+                            (resolutions[l],normLabel,  norm[0], norm[1]))
     
         fig1[l].set_ydata(aabs(freqs))
         

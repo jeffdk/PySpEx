@@ -81,6 +81,28 @@ def SmoothFuncOffset(x,xoff):
     return SmoothFunc(x-xoff)
 
 
+## A function which is C^1 smooth (second deriv discontinuous)
+def C1FunctionScalar(x):
+    x = x + 1.0  # translate to center
+    value =  x - 1.0
+    if x < 1.0:
+        value = 0.5* x ** 2 - 0.5
+    return value
+C1Function = frompyfunc(C1FunctionScalar,1,1)
+def C1FunctionOffset(x, off):
+    return C1Function(x - off)
+
+## A function which is C^1 smooth (second deriv discontinuous)
+def C1FunctionOddScalar(x):
+    value =  -x ** 2
+    if x < 0.0:
+        value =  x ** 2 
+    return value
+C1FunctionOdd = frompyfunc(C1FunctionOddScalar,1,1)
+def C1FunctionOddOffset(x, off):
+    return C1FunctionOdd(x - off)
+
+
 ##A Constant function on -1,1
 def ConstFuncScalar(x):
     return 0.5
